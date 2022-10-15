@@ -11,5 +11,6 @@ class NondexGradlePluginTest {
         Project project = ProjectBuilder.builder().build();
         project.getPlugins().apply("edu.illinois.nondex");
         assertNotNull(project.getTasks().findByName("nondexTest"));
+        assertNotNull(project.getTasks().findByName("nondexClean"));
     }
 }
