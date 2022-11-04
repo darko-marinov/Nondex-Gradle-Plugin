@@ -18,12 +18,12 @@ import java.util.regex.Pattern;
 
 public class NondexRun extends CleanRun {
     private NondexRun(TestExecuter<JvmTestExecutionSpec> delegate, JvmTestExecutionSpec spec,
-                      RetryTestProcessor testResultProcessor, String nondexDir) {
+                      NondexTestProcessor testResultProcessor, String nondexDir) {
         super(delegate, spec, testResultProcessor, Utils.getFreshExecutionId(), nondexDir);
     }
 
     public NondexRun(int seed, TestExecuter<JvmTestExecutionSpec> delegate, JvmTestExecutionSpec originalSpec,
-                           RetryTestProcessor testResultProcessor, String nondexDir, String nondexJarDir) {
+                     NondexTestProcessor testResultProcessor, String nondexDir, String nondexJarDir) {
         this(delegate, originalSpec, testResultProcessor, nondexDir);
         this.configuration = new Configuration(ConfigurationDefaults.DEFAULT_MODE, seed, Pattern.compile(ConfigurationDefaults.DEFAULT_FILTER),
                 ConfigurationDefaults.DEFAULT_START, ConfigurationDefaults.DEFAULT_END, nondexDir, nondexJarDir, null,

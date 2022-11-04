@@ -15,10 +15,10 @@ public class CleanRun {
 
     private final TestExecuter<JvmTestExecutionSpec> delegate;
     protected JvmTestExecutionSpec originalSpec;
-    private RetryTestProcessor testResultProcessor;
+    private NondexTestProcessor testResultProcessor;
 
     protected CleanRun(TestExecuter<JvmTestExecutionSpec> delegate, JvmTestExecutionSpec originalSpec,
-                             RetryTestProcessor testResultProcessor, String executionId, String nondexDir) {
+                       NondexTestProcessor testResultProcessor, String executionId, String nondexDir) {
         this.delegate = delegate;
         this.originalSpec = originalSpec;
         this.testResultProcessor = testResultProcessor;
@@ -27,7 +27,7 @@ public class CleanRun {
     }
 
     public CleanRun(TestExecuter<JvmTestExecutionSpec> delegate, JvmTestExecutionSpec originalSpec,
-                          RetryTestProcessor testResultProcessor, String nondexDir) {
+                    NondexTestProcessor testResultProcessor, String nondexDir) {
         this(delegate, originalSpec, testResultProcessor, "clean_" + Utils.getFreshExecutionId(), nondexDir);
     }
 
@@ -35,7 +35,7 @@ public class CleanRun {
         return this.configuration;
     }
 
-    public RetryTestProcessor run() {
+    public NondexTestProcessor run() {
         Logger.getGlobal().log(Level.CONFIG, this.configuration.toString());
         this.delegate.execute(this.originalSpec, this.testResultProcessor);
         this.setFailures();

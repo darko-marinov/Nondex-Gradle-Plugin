@@ -9,6 +9,7 @@ import edu.illinois.nondex.instr.Main;
 import org.gradle.api.internal.tasks.testing.JvmTestExecutionSpec;
 import org.gradle.api.internal.tasks.testing.TestExecuter;
 import org.gradle.api.internal.tasks.testing.TestResultProcessor;
+import org.gradle.api.tasks.VerificationException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,20 +48,20 @@ public class NondexTestExecuter implements TestExecuter<JvmTestExecutionSpec> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        RetryTestProcessor retryTestProcessor = new RetryTestProcessor(testResultProcessor);
+        NondexTestProcessor nondexTestProcessor = new NondexTestProcessor(testResultProcessor);
 
-        CleanRun cleanRun = new CleanRun(this.delegate, spec, retryTestProcessor,
+        CleanRun cleanRun = new CleanRun(this.delegate, spec, nondexTestProcessor,
                 System.getProperty("user.dir")+ File.separator + ConfigurationDefaults.DEFAULT_NONDEX_DIR);
-        retryTestProcessor = cleanRun.run();
+        nondexTestProcessor = cleanRun.run();
 
         for (int currentRun = 0; currentRun < numRuns; ++currentRun) {
-            retryTestProcessor.reset(currentRun + 1 == numRuns);
+            nondexTestProcessor.reset(currentRun + 1 == numRuns);
             NondexRun nondexRun = new NondexRun(Utils.computeIthSeed(currentRun - 1, false, this.seed),
-                    this.delegate, spec, retryTestProcessor,
+                    this.delegate, spec, nondexTestProcessor,
                     System.getProperty("user.dir")+ File.separator + ConfigurationDefaults.DEFAULT_NONDEX_DIR,
                     System.getProperty("user.dir")+ File.separator + ConfigurationDefaults.DEFAULT_NONDEX_JAR_DIR);
             this.nondexRuns.add(nondexRun);
-            retryTestProcessor = nondexRun.run();
+            nondexTestProcessor = nondexRun.run();
             this.writeCurrentRunInfo(nondexRun);
         }
         this.writeCurrentRunInfo(cleanRun);
@@ -92,18 +93,20 @@ public class NondexTestExecuter implements TestExecuter<JvmTestExecutionSpec> {
         }
     }
 
-    private void printSummary(CleanRun runs, Configuration config) {
+    private void printSummary(CleanRun cleanRun, Configuration config) {
         Set<String> allFailures = new LinkedHashSet<>();
         Logger.getGlobal().log(Level.INFO, "NonDex SUMMARY:");
         for (CleanRun run : this.nondexRuns) {
             this.printExecutionResults(allFailures, run);
         }
 
-        if (!runs.getConfiguration().getFailedTests().isEmpty()) {
+        if (!cleanRun.getConfiguration().getFailedTests().isEmpty()) {
             Logger.getGlobal().log(Level.INFO, "Tests are failing without NonDex.");
-            this.printExecutionResults(allFailures, runs);
+            this.printExecutionResults(allFailures, cleanRun);
         }
-        allFailures.removeAll(runs.getConfiguration().getFailedTests());
+
+        boolean cleanRunHasFailingTests = !cleanRun.getConfiguration().getFailedTests().isEmpty();
+        allFailures.removeAll(cleanRun.getConfiguration().getFailedTests());
 
         Logger.getGlobal().log(Level.INFO, "Across all seeds:");
         for (String test : allFailures) {
@@ -111,6 +114,10 @@ public class NondexTestExecuter implements TestExecuter<JvmTestExecutionSpec> {
         }
 
         this.generateHtml(allFailures, config);
+
+        if (cleanRunHasFailingTests || !allFailures.isEmpty()) {
+            throw new VerificationException("There were failing tests");
+        }
     }
 
     private void generateHtml(Set<String> allFailures, Configuration config) {

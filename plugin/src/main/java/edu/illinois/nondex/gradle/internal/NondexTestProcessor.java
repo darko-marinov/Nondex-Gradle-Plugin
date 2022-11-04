@@ -13,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class RetryTestProcessor implements TestResultProcessor {
+public class NondexTestProcessor implements TestResultProcessor {
 
     private final TestResultProcessor delegate;
     private Set<String> failingTests = new LinkedHashSet<>();
@@ -22,7 +22,7 @@ public class RetryTestProcessor implements TestResultProcessor {
     private boolean lastRun;
     private Method failureMethod;
 
-    RetryTestProcessor(TestResultProcessor delegate) {
+    NondexTestProcessor(TestResultProcessor delegate) {
         this.delegate = delegate;
     }
 
