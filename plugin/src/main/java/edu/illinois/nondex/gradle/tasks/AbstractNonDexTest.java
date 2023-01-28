@@ -6,6 +6,7 @@ import edu.illinois.nondex.common.Logger;
 import edu.illinois.nondex.common.Mode;
 import edu.illinois.nondex.common.Utils;
 import edu.illinois.nondex.instr.Instrumenter;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskInstantiationException;
@@ -142,7 +143,7 @@ public abstract class AbstractNonDexTest extends Test {
             exc.printStackTrace();
         }
 
-        this.testTask = (Test) getProject().getTasks().findByPath("test");
+        this.testTask = (Test) getProject().getTasks().findByName("test");
 
         if (testTask == null) {
             Logger.getGlobal().log(Level.SEVERE, "Cannot find a test task for this project");
@@ -150,5 +151,16 @@ public abstract class AbstractNonDexTest extends Test {
         }
 
         this.originalArgLine = testTask.getAllJvmArgs();
+    }
+
+    @Override
+    public FileTree getCandidateClassFiles() {
+        FileTree candidateFiles = null;
+        try {
+            candidateFiles = super.getCandidateClassFiles();
+        } catch (NullPointerException e) {
+            Logger.getGlobal().log(Level.SEVERE, "Cannot find tests for project " + getProject().getPath());
+        }
+        return candidateFiles;
     }
 }
