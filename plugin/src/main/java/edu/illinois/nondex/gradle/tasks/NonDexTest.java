@@ -8,6 +8,7 @@ import org.gradle.api.tasks.testing.Test;
 import java.lang.reflect.Method;
 
 public class NonDexTest extends AbstractNonDexTest {
+
     static final String NAME = "nondexTest";
 
     public static String getNAME() { return NAME; }

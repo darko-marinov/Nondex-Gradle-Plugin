@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CleanRun {
+
     protected Configuration configuration;
     protected final String executionId;
     protected JvmTestExecutionSpec originalSpec;

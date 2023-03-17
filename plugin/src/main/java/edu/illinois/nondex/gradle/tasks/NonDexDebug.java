@@ -142,14 +142,17 @@ public class NonDexDebug extends AbstractNonDexTest {
             String singleTest = this.test;
             String testClass = this.test.substring(0, test.lastIndexOf('.'));
             for (String testFilterPatterns : new String[] { singleTest, testClass, "" }) {
-                // Parameterized JUnit tests will have parenthesis surrounding the parameters after the test name
-                // We need to remove the parenthesis because Gradle cannot filter a specific parameterized test
-                int parenthesisIndex  = testFilterPatterns.indexOf('(');
+                // Tests may have parenthesis or square brackets in the name
+                // We need to remove them so that Gradle can find the test
+                int parenthesisIndex = testFilterPatterns.indexOf('(');
                 if (parenthesisIndex != -1) {
-                    this.test = testFilterPatterns.substring(0, parenthesisIndex);
-                } else {
-                    this.test = testFilterPatterns;
+                    testFilterPatterns = testFilterPatterns.substring(0, parenthesisIndex);
                 }
+                int bracketIndex = testFilterPatterns.indexOf('[');
+                if (bracketIndex != -1) {
+                    testFilterPatterns = testFilterPatterns.substring(0, bracketIndex);
+                }
+                this.test = testFilterPatterns;
                 NonDexDebug.this.runSpecifiedTests(this.test);
                 String result = this.tryDebugSeeds();
                 if (result != null) {
