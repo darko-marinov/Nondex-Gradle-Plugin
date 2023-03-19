@@ -1,7 +1,7 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
-    id "com.gradle.plugin-publish" version "1.0.0"
+    id "com.gradle.plugin-publish" version "1.1.0"
 }
 
 group = "edu.illinois"
@@ -32,6 +32,8 @@ gradlePlugin {
             id = 'edu.illinois.nondex'
             displayName = 'Nondex plugin for Gradle'
             implementationClass = 'edu.illinois.nondex.gradle.plugin.NonDexGradlePlugin'
+            description = 'NonDex plugin for Gradle'
+            tags.addAll('non-deterministic', 'test')
         }
     }
 }
