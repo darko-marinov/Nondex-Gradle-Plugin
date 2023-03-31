@@ -57,3 +57,8 @@ gradlePlugin.testSourceSets(sourceSets.functionalTest)
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+compileJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+}
