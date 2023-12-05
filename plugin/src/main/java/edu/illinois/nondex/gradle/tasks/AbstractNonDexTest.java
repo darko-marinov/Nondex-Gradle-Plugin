@@ -7,6 +7,9 @@ import edu.illinois.nondex.common.Mode;
 import edu.illinois.nondex.common.Utils;
 import edu.illinois.nondex.instr.Instrumenter;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.internal.provider.DefaultProperty;
+import org.gradle.api.internal.provider.PropertyHost;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskInstantiationException;
@@ -110,6 +113,13 @@ public abstract class AbstractNonDexTest extends Test {
     }
     @Input
     public String getNondexLoggingLevel() { return nondexLoggingLevel; }
+
+    @Internal
+    public Property<Boolean> getDryRun() {
+        DefaultProperty<Boolean> dryRun = new DefaultProperty<Boolean>(PropertyHost.NO_OP, Boolean.class);
+        dryRun.set(false);
+        return dryRun;
+    }
 
     @Internal
     protected Test testTask;

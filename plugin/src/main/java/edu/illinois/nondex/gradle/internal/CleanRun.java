@@ -5,10 +5,14 @@ import edu.illinois.nondex.common.Level;
 import edu.illinois.nondex.common.Logger;
 import edu.illinois.nondex.common.Utils;
 import edu.illinois.nondex.gradle.tasks.AbstractNonDexTest;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.tasks.testing.JvmTestExecutionSpec;
 import org.gradle.api.internal.tasks.testing.TestExecuter;
+import org.gradle.api.internal.tasks.testing.TestFramework;
 import org.gradle.process.JavaForkOptions;
 import org.gradle.util.GradleVersion;
+import org.gradle.util.Path;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -57,10 +61,24 @@ public class CleanRun {
     protected JvmTestExecutionSpec createJvmExecutionSpecWithArgs(List<String> args, JvmTestExecutionSpec originalSpec) {
         JavaForkOptions option = originalSpec.getJavaForkOptions();
         option.setAllJvmArgs(args);
-        if (GradleVersion.current().getBaseVersion().compareTo(GradleVersion.version("6.4")) >= 0) {
-            // This constructor is in Gradle 6.4+
-            return new JvmTestExecutionSpec(
-                    originalSpec.getTestFramework(),
+        GradleVersion curGradleVersion = GradleVersion.current().getBaseVersion();
+        try {
+            if (curGradleVersion.compareTo(GradleVersion.version("8.0")) >= 0) {
+                return JvmTestExecutionSpec.class.getConstructor(new Class[]{
+                    TestFramework.class,
+                    Iterable.class,
+                    Iterable.class,
+                    FileTree.class,
+                    Boolean.class,
+                    FileCollection.class,
+                    String.class,
+                    Path.class,
+                    Long.class,
+                    JavaForkOptions.class,
+                    Integer.class,
+                    Set.class,
+                    Boolean.class
+                }).newInstance(originalSpec.getTestFramework(),
                     originalSpec.getClasspath(),
                     originalSpec.getModulePath(),
                     originalSpec.getCandidateClassFiles(),
@@ -71,12 +89,48 @@ public class CleanRun {
                     originalSpec.getForkEvery(),
                     option,
                     originalSpec.getMaxParallelForks(),
-                    originalSpec.getPreviousFailedTestClasses()
-            );
-        } else {
-            // This constructor is in Gradle 4.7+
-            return new JvmTestExecutionSpec(
-                    originalSpec.getTestFramework(),
+                    originalSpec.getPreviousFailedTestClasses(),
+                    originalSpec.getTestIsModule());
+            } else if (curGradleVersion.compareTo(GradleVersion.version("6.4")) >= 0) {
+                return JvmTestExecutionSpec.class.getConstructor(new Class[]{
+                    TestFramework.class,
+                    Iterable.class,
+                    Iterable.class,
+                    FileTree.class,
+                    Boolean.class,
+                    FileCollection.class,
+                    String.class,
+                    Path.class,
+                    Long.class,
+                    JavaForkOptions.class,
+                    Integer.class,
+                    Set.class
+                }).newInstance(originalSpec.getTestFramework(),
+                    originalSpec.getClasspath(),
+                    originalSpec.getModulePath(),
+                    originalSpec.getCandidateClassFiles(),
+                    originalSpec.isScanForTestClasses(),
+                    originalSpec.getTestClassesDirs(),
+                    originalSpec.getPath(),
+                    originalSpec.getIdentityPath(),
+                    originalSpec.getForkEvery(),
+                    option,
+                    originalSpec.getMaxParallelForks(),
+                    originalSpec.getPreviousFailedTestClasses());
+            } else {
+                return JvmTestExecutionSpec.class.getConstructor(new Class[]{
+                    TestFramework.class,
+                    Iterable.class,
+                    FileTree.class,
+                    Boolean.class,
+                    FileCollection.class,
+                    String.class,
+                    Path.class,
+                    Long.class,
+                    JavaForkOptions.class,
+                    Integer.class,
+                    Set.class
+                }).newInstance(originalSpec.getTestFramework(),
                     originalSpec.getClasspath(),
                     originalSpec.getCandidateClassFiles(),
                     originalSpec.isScanForTestClasses(),
@@ -86,8 +140,10 @@ public class CleanRun {
                     originalSpec.getForkEvery(),
                     option,
                     originalSpec.getMaxParallelForks(),
-                    originalSpec.getPreviousFailedTestClasses()
-            );
+                    originalSpec.getPreviousFailedTestClasses());
+            } 
+        } catch (Exception e) {
+            return originalSpec;
         }
     }
 
