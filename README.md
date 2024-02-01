@@ -1,4 +1,4 @@
-# Nondex-Gradle-Plugin
+# NonDex Gradle Plugin
 To use the plugin, add the following in your build.gradle(.kts):
 ## Groovy
 ```
