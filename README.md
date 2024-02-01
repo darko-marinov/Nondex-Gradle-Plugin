@@ -1,5 +1,5 @@
 # Nondex-Gradle-Plugin
-To use the plugin, add the following in your build.gradle:
+To use the plugin, add the following in your build.gradle(.kts):
 ## Groovy
 ```
 plugins {
